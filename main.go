@@ -18,7 +18,7 @@ func main() {
 	backend_server_port := os.Getenv("BACKEND_SERVER_PORT")
 	proxy_starting_port := os.Getenv("PROXY_PORT")
 
-	target, err := url.Parse(backend_server_port)
+	target, err := url.Parse("http://" + backend_server_port)
 
 	if err != nil {
 		log.Fatal("Cannot parse URL:", err)
