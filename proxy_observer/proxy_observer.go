@@ -3,6 +3,7 @@ package RPB
 import (
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ type ReverseProxyBalancer struct {
 	CallBuffer    map[string][]int64
 	NextBufferIdx map[string]int
 	coolDownIP    map[string]int64
+	showDetails   bool
 }
 
 func NewReverseProxyBalancer() ReverseProxyBalancer {
@@ -21,6 +23,11 @@ func NewReverseProxyBalancer() ReverseProxyBalancer {
 	revLB.CallBuffer = make(map[string][]int64)
 	revLB.coolDownIP = make(map[string]int64)
 	revLB.NextBufferIdx = make(map[string]int)
+	showDetailValue, err := strconv.ParseBool(os.Getenv("SHOW_REQUEST_DETAIL"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	revLB.showDetails = showDetailValue
 	return revLB
 }
 
@@ -53,9 +60,24 @@ func (lb *ReverseProxyBalancer) InsertCall(ip string) bool {
 }
 
 func (lb *ReverseProxyBalancer) ProcessTelemetry(req *http.Request) {
-	log.Println(req.Header)
-	log.Println(req.Method)
-	log.Println(req.URL)
-	log.Println(req.Host)
-	log.Println(req.RemoteAddr)
+	if lb.showDetails {
+		log.Println("From " + req.RemoteAddr + " :: " + req.Method + " " + req.URL.Path + " " + req.Proto + " " + strconv.FormatInt(req.ContentLength, 10))
+		log.Println(req.Header)
+		log.Println()
+	} else {
+		log.Println("From " + req.RemoteAddr + " :: " + req.Method + " " + req.URL.Path)
+	}
+}
+
+func (lb *ReverseProxyBalancer) MonitorCoolDownList() {
+	for {
+		time.Sleep(time.Second)
+		curTime := time.Now().UnixMilli()
+		for key, val := range lb.coolDownIP {
+			if curTime-val > 5*1000 {
+				delete(lb.coolDownIP, key)
+				log.Println(key + " deleted from the cool down list")
+			}
+		}
+	}
 }

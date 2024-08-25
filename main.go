@@ -14,8 +14,6 @@ import (
 )
 
 func main() {
-	reverseProxyBalancer := RPB.NewReverseProxyBalancer()
-
 	envLoadErr := godotenv.Load()
 	if envLoadErr != nil {
 		log.Fatal("Cannot load .env file")
@@ -28,6 +26,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Cannot parse URL:", err)
 	}
+
+	reverseProxyBalancer := RPB.NewReverseProxyBalancer()
 
 	proxyServer := httputil.NewSingleHostReverseProxy(target)
 
