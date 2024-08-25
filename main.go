@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	RPB "rev/proxy_observer"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -37,7 +39,9 @@ func main() {
 		if allowRequest {
 			proxyServer.ServeHTTP(w, r)
 		} else {
-			log.Println("Request has been blocked due to rate limit. IP: " + r.RemoteAddr)
+			log.Println("Request has been blocked due to rate limit. IP: " + strings.Split(r.RemoteAddr, ":")[0])
+			w.WriteHeader(http.StatusTooManyRequests)
+			fmt.Fprintf(w, "Request has been blocked due to rate limit")
 		}
 	})
 
