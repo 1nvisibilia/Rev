@@ -3,10 +3,12 @@ package RPB
 import (
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
-var InitialTimeStamps = [10]int64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+const BUFFER_WINDOW = 10
 
 type ReverseProxyBalancer struct {
 	CallBuffer    map[string][]int64
@@ -14,17 +16,25 @@ type ReverseProxyBalancer struct {
 	coolDownIP    map[string]int64
 }
 
+func NewReverseProxyBalancer() ReverseProxyBalancer {
+	revLB := ReverseProxyBalancer{}
+	revLB.CallBuffer = make(map[string][]int64)
+	revLB.coolDownIP = make(map[string]int64)
+	revLB.NextBufferIdx = make(map[string]int)
+	return revLB
+}
+
 func (lb *ReverseProxyBalancer) ProcessRequest(req *http.Request) bool {
 	go lb.ProcessTelemetry(req)
 
-	return lb.InsertCall(req.RemoteAddr)
+	return lb.InsertCall(strings.Split(req.RemoteAddr, ":")[0])
 }
 
 func (lb *ReverseProxyBalancer) InsertCall(ip string) bool {
 	_, exist := lb.CallBuffer[ip]
 
 	if !exist {
-		lb.CallBuffer[ip] = InitialTimeStamps[0:10]
+		lb.CallBuffer[ip] = make([]int64, BUFFER_WINDOW)
 		lb.NextBufferIdx[ip] = 0
 	}
 	nextIdx := lb.NextBufferIdx[ip]
@@ -34,7 +44,7 @@ func (lb *ReverseProxyBalancer) InsertCall(ip string) bool {
 
 	if lb.CallBuffer[ip][nextIdx] == 0 || timeNow-lastTime > 100 {
 		lb.CallBuffer[ip][nextIdx] = time.Now().UnixMilli()
-		lb.NextBufferIdx[ip]++
+		lb.NextBufferIdx[ip] = (lb.NextBufferIdx[ip] + 1) % BUFFER_WINDOW
 		return true
 	}
 
