@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	reverseProxyBalancer := RPB.ReverseProxyBalancer{}
+	reverseProxyBalancer := RPB.NewReverseProxyBalancer()
 
 	envLoadErr := godotenv.Load()
 	if envLoadErr != nil {
@@ -36,8 +36,12 @@ func main() {
 
 		if allowRequest {
 			proxyServer.ServeHTTP(w, r)
+		} else {
+			log.Println("Request has been blocked due to rate limit. IP: " + r.RemoteAddr)
 		}
 	})
+
+	go reverseProxyBalancer.MonitorCoolDownList()
 
 	log.Println("Starting server")
 	log.Println("		Proxy Server		==>>		Actual Server")

@@ -11,14 +11,17 @@ import (
 
 func getRoot(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received :: " + r.Method + " /")
+	fmt.Fprintf(w, "welcome to home directory")
 }
 
 func test1Handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received :: " + r.Method + " /test1")
+	fmt.Fprintf(w, "welcome to test1")
 }
 
 func test2Handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received :: " + r.Method + " /test2")
+	fmt.Fprintf(w, "welcome to test2")
 }
 
 func main() {
