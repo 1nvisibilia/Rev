@@ -84,5 +84,5 @@ func (lb *ReverseProxyBalancer) MonitorCoolDownList() {
 
 func (lb *ReverseProxyBalancer) InCoolDown(ip string) bool {
 	_, exist := lb.coolDownIP[ip]
-	return exist
+	return !exist
 }
