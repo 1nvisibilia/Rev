@@ -12,17 +12,17 @@ import (
 const BUFFER_WINDOW = 10
 
 type ReverseProxyBalancer struct {
-	CallBuffer    map[string][]int64
-	NextBufferIdx map[string]int
+	callBuffer    map[string][]int64
+	nextBufferIdx map[string]int
 	coolDownIP    map[string]int64
 	showDetails   bool
 }
 
 func NewReverseProxyBalancer() ReverseProxyBalancer {
 	revLB := ReverseProxyBalancer{}
-	revLB.CallBuffer = make(map[string][]int64)
+	revLB.callBuffer = make(map[string][]int64)
 	revLB.coolDownIP = make(map[string]int64)
-	revLB.NextBufferIdx = make(map[string]int)
+	revLB.nextBufferIdx = make(map[string]int)
 	showDetailValue, err := strconv.ParseBool(os.Getenv("SHOW_REQUEST_DETAIL"))
 	if err != nil {
 		log.Fatal(err)
@@ -38,20 +38,20 @@ func (lb *ReverseProxyBalancer) ProcessRequest(req *http.Request) bool {
 }
 
 func (lb *ReverseProxyBalancer) InsertCall(ip string) bool {
-	_, exist := lb.CallBuffer[ip]
+	_, exist := lb.callBuffer[ip]
 
 	if !exist {
-		lb.CallBuffer[ip] = make([]int64, BUFFER_WINDOW)
-		lb.NextBufferIdx[ip] = 0
+		lb.callBuffer[ip] = make([]int64, BUFFER_WINDOW)
+		lb.nextBufferIdx[ip] = 0
 	}
-	nextIdx := lb.NextBufferIdx[ip]
+	nextIdx := lb.nextBufferIdx[ip]
 
-	lastTime := lb.CallBuffer[ip][nextIdx]
+	lastTime := lb.callBuffer[ip][nextIdx]
 	timeNow := time.Now().UnixMilli()
 
-	if lb.CallBuffer[ip][nextIdx] == 0 || timeNow-lastTime > 100 {
-		lb.CallBuffer[ip][nextIdx] = time.Now().UnixMilli()
-		lb.NextBufferIdx[ip] = (lb.NextBufferIdx[ip] + 1) % BUFFER_WINDOW
+	if lb.callBuffer[ip][nextIdx] == 0 || timeNow-lastTime > 100 {
+		lb.callBuffer[ip][nextIdx] = time.Now().UnixMilli()
+		lb.nextBufferIdx[ip] = (lb.nextBufferIdx[ip] + 1) % BUFFER_WINDOW
 		return true
 	}
 
@@ -80,4 +80,9 @@ func (lb *ReverseProxyBalancer) MonitorCoolDownList() {
 			}
 		}
 	}
+}
+
+func (lb *ReverseProxyBalancer) InCoolDown(ip string) bool {
+	_, exist := lb.coolDownIP[ip]
+	return exist
 }
