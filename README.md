@@ -25,7 +25,7 @@ After 10 consecutive calls, we detect the rate of request is too stronger and pu
 
 ### Viewing Additional Telemetry Data
 
-https://i.snipboard.io/sQZRPz.jpg
+![sQZRPz](https://github.com/user-attachments/assets/7fb45cd6-0b62-4e57-ab7e-cc1ea5be83fd)
 
 By setting `SHOW_REQUEST_DETAIL=true`, the proxy server will display additional telemetry data including `Method`, `Path`, `URL`, `ContentLength`, and `Header`. For details on these fields, visit https://pkg.go.dev/net/http#Request for reference.
 
