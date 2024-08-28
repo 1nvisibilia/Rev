@@ -12,11 +12,16 @@ The following are 2 examples of trying to spam an API endpoint directly to the s
 
 Here, the actual server is hosted on `localhost:7000`, and the reverse proxy server is hosted on `localhost:7001`.
 
-[https://i.imgur.com/hrGNuz5.mp4
-](https://i.imgur.com/hrGNuz5.mp4)
+[Demo without Reverse Proxy Server](load_test/server.mp4)
+
 We ran a script that spam calls an API endpoint 20 times, and our actual server processed all 20 calls.
 
 The following example shows the rate-limiting block from the proxy server.
+
+[Demo with Reverse Proxy Server](load_test/proxy.mp4)
+
+After 10 consecutive calls, we detect the rate of request is too stronger and puts the IP into a temporary cool down list and prevents it from making any interactions with the server further for the next 5 seconds.
+
 
 ### Viewing Additional Telemetry Data
 

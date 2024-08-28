@@ -37,7 +37,7 @@ func main() {
 		allowRequest := reverseProxyBalancer.ProcessRequest(r)
 		ipAddr := strings.Split(r.RemoteAddr, ":")[0]
 
-		if allowRequest && reverseProxyBalancer.InCoolDown(ipAddr) {
+		if allowRequest {
 			proxyServer.ServeHTTP(w, r)
 		} else {
 			log.Println("Request has been blocked due to rate limit. IP: " + ipAddr)

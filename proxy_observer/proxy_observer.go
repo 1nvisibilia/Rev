@@ -34,6 +34,12 @@ func NewReverseProxyBalancer() ReverseProxyBalancer {
 func (lb *ReverseProxyBalancer) ProcessRequest(req *http.Request) bool {
 	go lb.ProcessTelemetry(req)
 
+	ipAddr := strings.Split(req.RemoteAddr, ":")[0]
+
+	if lb.InCoolDown(ipAddr) {
+		return false
+	}
+
 	return lb.InsertCall(strings.Split(req.RemoteAddr, ":")[0])
 }
 
@@ -84,5 +90,5 @@ func (lb *ReverseProxyBalancer) MonitorCoolDownList() {
 
 func (lb *ReverseProxyBalancer) InCoolDown(ip string) bool {
 	_, exist := lb.coolDownIP[ip]
-	return !exist
+	return exist
 }
