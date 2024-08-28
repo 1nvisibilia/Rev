@@ -25,6 +25,10 @@ After 10 consecutive calls, we detect the rate of request is too stronger and pu
 
 ### Viewing Additional Telemetry Data
 
+https://i.snipboard.io/sQZRPz.jpg
+
+By setting `SHOW_REQUEST_DETAIL=true`, the proxy server will display additional telemetry data including `Method`, `Path`, `URL`, `ContentLength`, and `Header`. For details on these fields, visit https://pkg.go.dev/net/http#Request for reference.
+
 ## Set Up
 
 ##### Requirements
@@ -36,6 +40,7 @@ The `.example.env` has an example of available environment variables:
 - `PROXY_PORT` the (localhost) port that the proxy server will run on
 - `BACKEND_SERVER_PORT` the port of the actual REST server this proxy will forward requests to
 - `SHOW_REQUEST_DETAIL` enables additional telemetry data for incoming requests
+- `RATE_LIMIT` specifies the maximum frequency in milliseconds between 10 calls to not be considered as spam (trigger rate limit prevention)
 
 See [Viewing Additional Telemetry Data](#viewing-additional-telemetry-data) for more information on `SHOW_REQUEST_DETAIL`
 

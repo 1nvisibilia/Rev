@@ -16,6 +16,7 @@ type ReverseProxyBalancer struct {
 	nextBufferIdx map[string]int
 	coolDownIP    map[string]int64
 	showDetails   bool
+	rateLimit     int64
 }
 
 func NewReverseProxyBalancer() ReverseProxyBalancer {
@@ -28,6 +29,11 @@ func NewReverseProxyBalancer() ReverseProxyBalancer {
 		log.Fatal(err)
 	}
 	revLB.showDetails = showDetailValue
+	rateLimit, err := strconv.Atoi(os.Getenv("RATE_LIMIT"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	revLB.rateLimit = int64(rateLimit)
 	return revLB
 }
 
@@ -55,7 +61,7 @@ func (lb *ReverseProxyBalancer) InsertCall(ip string) bool {
 	lastTime := lb.callBuffer[ip][nextIdx]
 	timeNow := time.Now().UnixMilli()
 
-	if lb.callBuffer[ip][nextIdx] == 0 || timeNow-lastTime > 100 {
+	if lb.callBuffer[ip][nextIdx] == 0 || timeNow-lastTime > lb.rateLimit {
 		lb.callBuffer[ip][nextIdx] = time.Now().UnixMilli()
 		lb.nextBufferIdx[ip] = (lb.nextBufferIdx[ip] + 1) % BUFFER_WINDOW
 		return true
