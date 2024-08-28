@@ -12,7 +12,7 @@ The following are 2 examples of trying to spam an API endpoint directly to the s
 
 Here, the actual server is hosted on `localhost:7000`, and the reverse proxy server is hosted on `localhost:7001`.
 
-https://imgur.com/hrGNuz5
+https://i.imgur.com/hrGNuz5.mp4
 
 We ran a script that spam calls an API endpoint 20 times, and our actual server processed all 20 calls.
 
